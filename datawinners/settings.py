@@ -168,6 +168,7 @@ INSTALLED_APPS = (
     'datawinners.home',
     'datawinners.countrytotrialnumbermapping',
     'django_nose',
+    'datawinners.crs_reports'
     )
 
 COMPILER_FORMATS = {
