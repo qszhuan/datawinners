@@ -39,7 +39,7 @@ class FilePlayer(Player):
             parser = CsvParser()
             channel = Channel.CSV
         elif extension == '.xls':
-            parser = XlsParser() if form_code is None else XlsOrderedParser(form_code)
+            parser = XlsParser() if form_code is None else XlsOrderedParser()
             channel = Channel.XLS
         else:
             raise InvalidFileFormatException()
