@@ -25,8 +25,6 @@ def _transform_data_to_list_of_records(data_dictionary):
         for value in values:
             entity[i][field_name] = value
             i += 1
-
-
     return entity
 
 def _load_all_data(manager, form_model):

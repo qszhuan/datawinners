@@ -4,11 +4,10 @@ when you run "manage.py test".
 
 Replace this with more appropriate tests for your application.
 """
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 import random
 import unittest
 import commands
-from unittest.case import skip, SkipTest
 from mangrove.contrib.registration import GLOBAL_REGISTRATION_FORM_CODE
 from mangrove.datastore.database import get_db_manager, _delete_db_and_remove_db_manager
 from mangrove.bootstrap.initializer import run
@@ -20,9 +19,8 @@ from mangrove.form_model.form_model import FormModel, MOBILE_NUMBER_FIELD_CODE, 
 from mangrove.form_model.validation import TextLengthConstraint, NumericRangeConstraint
 from mangrove.transport.facade import TransportInfo, Request
 from mangrove.transport.player.player import SMSPlayer
-from mock import Mock
 
-from datawinners.questionfiltering.views import _load_all_data, _format_data_for_filter_presentation, _transform_data_to_list_of_records, _transform_data_to_list_of_records
+from datawinners.questionfiltering.views import _load_all_data, _format_data_for_filter_presentation, _transform_data_to_list_of_records
 
 
 class QuestionFilteringTest(unittest.TestCase):
@@ -150,3 +148,11 @@ class QuestionFilteringTest(unittest.TestCase):
         self.assertEqual({"what's your name?":'a', "what's your age?":'c'}, list_of_result[0])
         self.assertEqual({"what's your name?":'b', "what's your age?":'d'}, list_of_result[1])
         self.assertEqual({"what's your name?":'c', "what's your age?":'d'}, list_of_result[2])
+
+    def test_should_get_filtered_data_record(self):
+        data_dictionary =  [{"what's your name?":'a', "what's your age?":'c'},
+                            {"what's your name?":'b', "what's your age?":'d'},
+                            {"what's your name?":'c', "what's your age?":'d'}]
+        result = [value for value in data_dictionary if value["what's your name?"] == 'a']
+
+        self.assertEqual(len(result), 1)
