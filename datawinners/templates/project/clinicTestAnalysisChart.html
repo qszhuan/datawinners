@@ -1,0 +1,241 @@
+{% extends 'layout_application.html' %}
+{% load i18n %}
+{% block page_title %}Flot Chart Demo{% endblock %}
+
+{% block body %}
+
+    {{ block.super }}
+{% endblock %}
+
+{% block page_scss %}
+    {{ block.super }}
+    <link href="/media/css/scss/section_all_datasenders.css" rel="stylesheet"/>
+    <style type="text/css">
+        ol>li {
+            margin-left: 40px;
+        }
+
+    </style>
+{% endblock %}
+
+
+{% block page_js %}
+    {{ block.super }}
+    <script type="text/javascript" src="/media/javascript/entity/all_datasender_reload_tables.js"></script>
+    <script type="text/javascript" src="/media/javascript/datasenders/index.js"></script>
+    <script type="text/javascript" src="/media/javascript/entity/entity_actions.js"></script>
+    <script type="text/javascript" src="/media/javascript/datasenders/device_tool_tips.js"></script>
+    <script language="javascript" type="text/javascript" src="/media/javascript/flot/jquery.flot.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/media/javascript/flot/jquery.flot.fillbetween.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/media/javascript/flot/jquery.flot.pie.min.js"></script>
+{% endblock %}
+
+{% load i18n %}
+{% block content %}
+    <h2>From Jan 1,2012 to Dec 31,2012</h2>
+    <div>
+    <h1>2000 responses</h1><br>
+    <div>Demo of Analysis Charts using <a href='http://code.google.com/p/flot/'>FLOT:</a>
+    </div>
+    <div>
+        The demo is based on a clinic questionnaire with 4 questions.In total, 2000 responses received
+        in a year on 5 subjects.
+        <ol>
+            <li>What is associated entity?</li>
+            <li>What is age of father?</li>
+            <li>What is report date?</li>
+            <li>What is your blood group?</li>
+        </ol>
+    </div>
+    <div>The analysis charts for the questions are as follows:
+    </div>
+    </div></br>
+    <div id= "entityAnalysisDiv">
+        <h1>Q1:Subject Analysis</h1><br>
+        <div id="entityAnalysis" style="width:600px;height:400px;"></div>
+    </div></br>
+    <div id= "fatherAgeAnalysisDiv"><br>
+        <h1>Q2:Father Age Analysis</h1><br>
+        <div id="fatherAgeAnalysis" style="width:600px;height:400px;"></div>
+    </div></br>
+    <div id= "reportDateAnalysisDiv"><br>
+        <h1>Q3:Report Date Analysis</h1><br>
+        <div id="reportDateAnalysis" style="width:600px;height:400px;"></div>
+    </div></br>
+    <div id= "bloodTypePercentageAnalysisDiv"><br>
+        <h1>Q4:Blood Type Analysis</h1><br>
+        <div id="bloodTypePercentageAnalysis" style="width:600px;height:400px;"></div>
+    </div></br>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            drawSubjectAnalysisBarChart();
+            drawFatherAgeAnalysisPieChart();
+            drawReportDateAnalysis();
+            drawBloodAnalysisPieChart();
+        });
+
+        function drawSubjectAnalysisBarChart() {
+            $.plot(
+                    $("#entityAnalysis"),
+                    [
+                        {
+                            data:[
+                                [450, 1],
+                                [550, 2],
+                                [300, 3],
+                                [600, 4] ,
+                                [100, 5]
+                            ],
+                            bars:{
+                                show:true,
+                                barWidth:0.4,
+                                align:"center",
+                                horizontal:true,
+                                fillColor: '#00f'
+
+                            },
+                            legend: {
+                                show: false
+                            },
+                            grid:{show:false}
+
+                        }
+                    ],
+                    {
+                        yaxis:{
+                            ticks:[
+                                [1, "cid001"],
+                                [2, "cid002"],
+                                [3, "cid003"],
+                                [4, "cid004"],
+                                [5, "cid005"]
+                            ],
+                            tickLength:0
+                        }
+                    }
+            );
+        }
+
+        function drawFatherAgeAnalysisPieChart() {
+            var data = [20, 30, 17, 33];
+            var series = ["Age &lt; 20", "Age betwee 20 and 40",  "Age betwee 40 and 60",  "Age betwee 60 and 80",  "Age > 80"];
+
+            for( var i = 0; i<series.length; i++)
+            {
+                data[i] = { label:series[i], data: data[i]}
+            }
+
+            $.plot($("#fatherAgeAnalysis"), data,
+                    {
+                        series: {
+                            pie: {
+                                show: true,
+                                radius: 1,
+                                label: {
+                                    show: true,
+                                    radius: 2/3,
+                                    formatter: function(label, series){
+                                        return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+label+'<br/>'+Math.round(series.percent)+'%</div>';
+                                    },
+                                    threshold: 0.1
+                                }
+                            }
+                        },
+                        legend: {
+                            show: false
+                        }
+                    });
+        }
+
+        function drawReportDateAnalysis() {
+            $.plot(
+                    $("#reportDateAnalysis"),
+                    [
+                        {
+                            data:[
+                                [1 ,50],
+                                [2 ,350],
+                                [3 ,200],
+                                [4 ,100] ,
+                                [5 ,150],
+                                [6 ,50],
+                                [7 ,510],
+                                [8 ,270],
+                                [9 ,100],
+                                [10,100],
+                                [11,20],
+                                [12,100]
+                            ],
+                            bars:{
+                                show:true,
+                                barWidth:0.6,
+                                align:"center",
+                                fillColor:'#090'
+
+                            },
+                            legend:{
+                                show: false
+                            }
+                        }
+                    ],
+                    {
+                            xaxis:{
+                            ticks:[
+                                [1 ,"Jan"],
+                                [2 ,"Feb"],
+                                [3 ,"Mar"],
+                                [4 ,"Apr"] ,
+                                [5 ,"May"],
+                                [6 ,"Jun"],
+                                [7 ,"Jul"],
+                                [8 ,"Aug"],
+                                [9 ,"Sep"],
+                                [10,"Oct"],
+                                [11,"Nov"],
+                                [12,"Dec"]
+                            ],
+                            tickLength:0
+                        },
+                        grid:{
+                            show:true
+                        }
+                    }
+            );
+        }
+
+        function drawBloodAnalysisPieChart() {
+            var data = [18,12, 46,24 ];
+            var series = ["O+", "O-",  "AB",  "B+"];
+
+            for( var i = 0; i<series.length; i++)
+            {
+                data[i] = { label:series[i], data: data[i] }
+            }
+
+            $.plot($("#bloodTypePercentageAnalysis"), data,
+                    {
+                        series: {
+                            pie: {
+                                show: true
+                            }
+                        },
+                        legend: {
+                            show: false
+                        }
+                    });
+        }
+
+
+
+    </script>
+{% endblock %}
+
+
+
+
+
+
+</body>
+</html>
