@@ -174,6 +174,7 @@ INSTALLED_APPS = (
     'django_nose',
     'django_digest',
     'datawinners.custom_reports.crs',
+    'datawinners.questionfiltering',
     )
 
 WAYBILL_SENT_QUESTIONNAIRE_CODE = 'way1'
