@@ -133,6 +133,14 @@ class QuestionFilteringTest(unittest.TestCase):
         self.assertEqual(len(data_list[0]), 2)
 
     def test_should_load_question_filter_options(self):
+        """
+        (
+        [['1234', u'AB']],
+        [u'clinic Code', u'what is your blood type?'],
+        [[{'text': {'en': 'A'}}, {'text': {'en': 'B'}}, {'text': {'en': 'AB'}}, {'text': {'en': 'O'}}, {'text': {'en': 'others'}}]],
+        ['Grand Total', u'--']
+        )
+        """
         form_model = self.form
         data_list = _load_all_data(self.dbm, form_model)
         formated_data = _format_data_for_filter_presentation(data_list, form_model)

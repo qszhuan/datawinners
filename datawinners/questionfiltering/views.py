@@ -27,10 +27,33 @@ def _transform_data_to_list_of_records(data_dictionary):
             i += 1
     return entity
 
-def _load_all_data(manager, form_model):
+def _load_all_data(manager, form_model, request, filters=None):
     data_dictionary = aggregate_module.get_by_form_code_python(manager, form_model.form_code)
-    return _transform_data_to_list_of_records(data_dictionary)
+    values_list = _transform_data_to_list_of_records(data_dictionary)
+    if request.method == 'POST':
+        filters = request.POST['aggregation-types']
 
+    return _filter_data(values_list, filters)
+
+def _filter_data(values_list, filters=None):
+    if not filters:
+        return values_list
+    values = []
+    values_list = values_list.values( )
+
+    for filter in eval(filters):
+        values = []
+        for value in values_list:
+            if filter.values()[0] in value[filter.keys()[0]]:
+                values.append(value)
+                print value
+        values_list = values
+
+    data_dict = {}
+    for index in xrange(len(values_list)):
+        data_dict[index] = values_list[index]
+
+    return data_dict
 
 def get_question_filter_options(fields):
     question_filter_options = []
@@ -49,9 +72,9 @@ def _format_data_for_filter_presentation(entity_values_dict, form_model):
     return field_values, headers, question_filter_options, grand_totals
 
 
-def _get_field_based_data(form_model, manager):
-    entity_values_dict, entity_values_list = _load_all_data(manager, form_model)
-    return _format_data_for_filter_presentation(entity_values_dict, entity_values_list, form_model)
+def _get_field_based_data(form_model, manager, request):
+    entity_values_list = _load_all_data(manager, form_model, request)
+    return _format_data_for_filter_presentation(entity_values_list, form_model)
 
 
 @login_required(login_url='/login')
@@ -61,7 +84,8 @@ def question_filter(request, project_id=None, questionnaire_code=None):
     manager = get_database_manager(request.user)
     project = Project.load(manager.database, project_id)
     form_model = get_form_model_by_code(manager, questionnaire_code)
-    field_values, header_list, question_filter_options, grand_totals = _get_field_based_data(form_model, manager)
+    field_values, header_list, question_filter_options, grand_totals = _get_field_based_data(form_model, manager, request)
+
 
     if request.method == "GET":
         in_trial_mode = _in_trial_mode(request)

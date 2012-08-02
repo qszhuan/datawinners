@@ -4,5 +4,7 @@ from datawinners.questionfiltering.views import question_filter
 
 
 urlpatterns = patterns('',
-    url(r'^questionfilter/(?P<project_id>.+?)/data/(?P<questionnaire_code>.+?)/$', question_filter),
 )
+
+
+
