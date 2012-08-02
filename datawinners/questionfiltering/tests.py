@@ -8,6 +8,7 @@ from collections import OrderedDict, defaultdict
 import random
 import unittest
 import commands
+from unittest.case import skip, SkipTest
 from mangrove.contrib.registration import GLOBAL_REGISTRATION_FORM_CODE
 from mangrove.datastore.database import get_db_manager, _delete_db_and_remove_db_manager
 from mangrove.bootstrap.initializer import run
@@ -21,7 +22,7 @@ from mangrove.transport.facade import TransportInfo, Request
 from mangrove.transport.player.player import SMSPlayer
 from mock import Mock
 
-from datawinners.questionfiltering.views import _load_all_data, _format_data_for_filter_presentation, _transform_data_to_list_of_records, _transform_data_to_list_of_records_v2
+from datawinners.questionfiltering.views import _load_all_data, _format_data_for_filter_presentation, _transform_data_to_list_of_records, _transform_data_to_list_of_records
 
 
 class QuestionFilteringTest(unittest.TestCase):
@@ -36,7 +37,6 @@ class QuestionFilteringTest(unittest.TestCase):
         clinic_return_data = self.register_clinic(self.form.id)
         self.clinic_id = clinic_return_data
         text += ' ' + self.clinic_id + ' c'
-        self.submit_answer_for_clinic(text)
         self.submit_answer_for_clinic(text)
 
     def tearDown(self):
@@ -129,70 +129,24 @@ class QuestionFilteringTest(unittest.TestCase):
     def test_should_load_all_data(self):
         form_model = self.form
 
-        dict_data = _load_all_data(self.dbm, form_model)
+        data_list = _load_all_data(self.dbm, form_model)
 
-        self.assertEqual(len(dict_data), 1)
-        self.assertEqual(len(dict_data.values()[0]), 2)
+        self.assertEqual(len(data_list), 1)
+        self.assertEqual(len(data_list[0]), 2)
 
     def test_should_load_question_filter_options(self):
         form_model = self.form
-        data_dict, data_list = _load_all_data(self.dbm, form_model)
-        formated_data = _format_data_for_filter_presentation(data_dict, data_list, form_model)
+        data_list = _load_all_data(self.dbm, form_model)
+        formated_data = _format_data_for_filter_presentation(data_list, form_model)
 
         self.assertEqual(len(formated_data[2][0]), 5)
 
-
-    def _build_field_set(self):
-        fields = []
-        for index in range(1, 3):
-            field = Mock()
-            field.name = 'q_' + str(index)
-            fields.append(field)
-        return fields
-
-    def test_should_transform_data_into_list_of_data_record(self):
-        fields = self._build_field_set()
-
-        data_dictionary = {('cid1', 'q_1'): ['a', 'b'], ('cid1', 'q_2'): ['c', 'd'], ('cid2', 'q_1'): ['aa'],
-                           ('cid2', 'q_2'): ['bb'], ('cid3', 'q_1'): ['aaa'], ('cid3', 'q_2'): ['bbb']}
-
-        result, list_of_result = _transform_data_to_list_of_records(data_dictionary, fields)
-
-        self.assertEqual(len(list_of_result), 4)
-        self.assertEqual(list_of_result[0], ['a', 'c'])
-        self.assertEqual(list_of_result[1], ['b', 'd'])
-        self.assertEqual(list_of_result[2], ['aa', 'bb'])
-        self.assertEqual(list_of_result[3], ['aaa', 'bbb'])
-
     def test_should_transformed_data_into_list_of_data_record_when_subject_have_multi_submission(self):
-        fields = self._build_field_set()
+        data_dictionary = {"what's your name?": ['a', 'b', 'c'], "what's your age?": ['c', 'd', 'd']}
 
-        data_dictionary = {('cid1', 'q_1'): ['a', 'b'], ('cid1', 'q_2'): ['c', 'd'], ('cid2', 'q_1'): ['aa'],
-                           ('cid2', 'q_2'): ['bb'], ('cid3', 'q_1'): ['aaa'], ('cid3', 'q_2'): ['bbb']}
+        list_of_result = _transform_data_to_list_of_records(data_dictionary)
 
-        result, list_of_result = _transform_data_to_list_of_records_v2(data_dictionary, fields)
-
-        self.assertEqual(len(list_of_result), 4)
-        self.assertEqual(list_of_result[0], ['a', 'c'])
-        self.assertEqual(list_of_result[1], ['b', 'd'])
-        self.assertEqual(list_of_result[2], ['aa', 'bb'])
-        self.assertEqual(list_of_result[3], ['aaa', 'bbb'])
-
-
-    def test_should_transformed_data_into_list_of_data_record_when_subject_have_only_one_submission(self):
-            fields = self._build_field_set()
-
-            data_dictionary = {('cid1', 'q_1'): ['a'], ('cid1', 'q_2'): ['c'], ('cid2', 'q_1'): ['aa'],
-                               ('cid2', 'q_2'): ['bb'], ('cid3', 'q_1'): ['aaa'], ('cid3', 'q_2'): ['bbb']}
-
-            result, list_of_result = _transform_data_to_list_of_records_v2(data_dictionary, fields)
-
-            self.assertEqual(len(list_of_result), 3)
-            self.assertEqual(list_of_result[0], ['a', 'c'])
-            self.assertEqual(list_of_result[1], ['aa', 'bb'])
-            self.assertEqual(list_of_result[2], ['aaa', 'bbb'])
-
-
-
-
-
+        self.assertEqual(len(list_of_result), 3)
+        self.assertEqual({"what's your name?":'a', "what's your age?":'c'}, list_of_result[0])
+        self.assertEqual({"what's your name?":'b', "what's your age?":'d'}, list_of_result[1])
+        self.assertEqual({"what's your name?":'c', "what's your age?":'d'}, list_of_result[2])
