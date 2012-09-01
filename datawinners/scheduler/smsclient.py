@@ -12,6 +12,16 @@ logger = logging.getLogger("datawinners.reminders")
 
 class SMSClient(object):
 
+    def check_and_log_destination_organization(self, to_tel):
+        to_organization = OrganizationFinder().find_organization_setting_includes_trial_account(to_tel)
+        if to_organization:
+            error_msg = "SMS error: can not send SMS to another datawinners organization: tel number: %s, organization name: %s" % (
+                to_tel, to_organization.organization.name);
+            logger.exception(error_msg)
+            return True
+        else:
+            return False
+
     def send_sms(self,from_tel,to_tel, message):
         if is_not_empty(from_tel):
             organization_setting = OrganizationFinder().find_organization_setting(from_tel)
@@ -19,6 +29,8 @@ class SMSClient(object):
             if organization_setting is not None and organization_setting.outgoing_number is not None:
                 smsc = organization_setting.outgoing_number.smsc
             if smsc is not None:
+                if self.check_and_log_destination_organization(to_tel):
+                    return False
                 socket.setdefaulttimeout(10)
                 logger.debug("Posting sms to %s" % settings.VUMI_API_URL)
                 if settings.USE_NEW_VUMI:
