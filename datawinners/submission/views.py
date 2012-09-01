@@ -1,5 +1,6 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 from django.contrib.auth.decorators import login_required
+import re
 from django.http import HttpResponse
 from django.utils.translation import ugettext
 from django.views.decorators.csrf import csrf_view_exempt, csrf_response_exempt
@@ -31,7 +32,12 @@ logger = logging.getLogger("django")
 @csrf_response_exempt
 @require_http_methods(['POST'])
 def sms(request):
+    logger.info("***********************entering sms()***********************")
+
     message = Responder().respond(request)
+
+    logger.info("***********************in sms() after respond***********************%s" %message)
+
     response = HttpResponse(message)
     response['X-Vumi-HTTPRelay-Reply'] = 'true'
     response['Content-Length'] = len(response.content)
@@ -47,13 +53,33 @@ def web_sms(request):
     message = Responder(next_state_processor=find_dbm_for_web_sms).respond(request)
     return HttpResponse(message)
 
+def check_and_log_from_organization(self, number):
+    organization_setting = OrganizationFinder().find_organization_setting_includes_trial_account(to_tel)
+    if organization_setting:
+        error_msg = "SMS error: can not send SMS from a datawinners organization: tel number: %s, organization name: %s" % (
+            number, organization_setting.organization.name);
+        logger.exception(error_msg)
+        return True
+    else:
+        return False
 
 def find_dbm(request):
+    logger.info("***********************entering find_dbm() ***********************")
+
     incoming_request = {}
     #This is the http post request. After this state, the request being sent is a python dictionary
     SMSMessageRequestProcessor().process(http_request=request, mangrove_request=incoming_request)
     SMSTransportInfoRequestProcessor().process(http_request=request, mangrove_request=incoming_request)
+
+    _from, _to = _get_from_and_to_numbers(request)
+    logger.info("***********************in find_dbm() from to : ***********************%s, %s" % (_from, _to))
+
+    _from = re.sub("(\-)|(\+)", "", _from)
+    check_and_log_from_organization(_from)
+
     organization, error = _get_organization(request)
+
+    logger.info("***********************in find_dbm() organization: ***********************%s" % organization.name)
 
     if error is not None:
         incoming_request['outgoing_message'] = error
@@ -89,6 +115,8 @@ def find_dbm_for_web_sms(request):
 
 
 def process_sms_counter(incoming_request):
+    logger.info("*******************entering find_dbm()*********************************entering process_sms_counter***********************")
+
     organization = incoming_request['organization']
     organization.increment_all_message_count()
     if organization.has_exceeded_message_limit():
@@ -101,10 +129,13 @@ def process_sms_counter(incoming_request):
 
 
 def send_message(incoming_request, response):
+    logger.info("***********************entering send_message()***********************")
+
     ReportRouter().route(incoming_request['organization'].org_id, response)
 
 
 def submit_to_player(incoming_request):
+    logger.info("***********************entering  submit_to_player***********************")
     try:
         dbm = incoming_request['dbm']
         post_sms_parser_processors = [PostSMSProcessorLanguageActivator(dbm, incoming_request),
