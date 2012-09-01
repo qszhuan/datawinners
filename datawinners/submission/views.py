@@ -34,7 +34,7 @@ STOP_BY_ERROR="stop by error"
 @csrf_response_exempt
 @require_http_methods(['POST'])
 def sms(request):
-    logger.info(datetime.now() + "***********************entering sms()***********************")
+    logger.info( "***********************entering sms()***********************")
     relay_message = 'true'
     message = Responder().respond(request)
 
