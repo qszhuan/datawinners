@@ -34,13 +34,19 @@ STOP_BY_ERROR="stop by error"
 @csrf_response_exempt
 @require_http_methods(['POST'])
 def sms(request):
+    datetime_now = datetime.now()
+    logger.debug(datetime_now)
     logger.info( "***********************entering sms()***********************")
     relay_message = 'true'
     message = Responder().respond(request)
 
     if message == STOP_BY_ERROR:
+        datetime_now = datetime.now()
+        logger.debug(datetime_now)
         logger.info("***********************STOP BY ERROR***********************%s" % STOP_BY_ERROR)
-        return None
+        response = HttpResponse(message)
+        response['Content-Length'] = len(response.content)
+        return response
 
     logger.info("***********************in sms() after respond***********************%s" % message)
 
