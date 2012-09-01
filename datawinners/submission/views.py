@@ -27,19 +27,24 @@ from mangrove.errors.MangroveException import DataObjectAlreadyExists
 from datawinners.accountmanagement.views import is_not_expired
 
 logger = logging.getLogger("django")
+STOP_BY_ERROR="stop by error"
 
 @csrf_view_exempt
 @csrf_response_exempt
 @require_http_methods(['POST'])
 def sms(request):
     logger.info("***********************entering sms()***********************")
-
+    relay_message = 'true'
     message = Responder().respond(request)
 
-    logger.info("***********************in sms() after respond***********************%s" %message)
+    if message == STOP_BY_ERROR:
+        logger.info("***********************STOP BY ERROR***********************%s" % STOP_BY_ERROR)
+        relay_message = 'false'
+
+    logger.info("***********************in sms() after respond***********************%s" % message)
 
     response = HttpResponse(message)
-    response['X-Vumi-HTTPRelay-Reply'] = 'true'
+    response['X-Vumi-HTTPRelay-Reply'] = relay_message
     response['Content-Length'] = len(response.content)
     return response
 
@@ -54,7 +59,7 @@ def web_sms(request):
     return HttpResponse(message)
 
 def check_and_log_from_organization(number):
-    organization_setting = OrganizationFinder().find_organization_setting_includes_trial_account(to_tel)
+    organization_setting = OrganizationFinder().find_organization_setting_includes_trial_account(number)
     if organization_setting:
         error_msg = "SMS error: can not send SMS from a datawinners organization: tel number: %s, organization name: %s" % (
             number, organization_setting.organization.name);
@@ -75,7 +80,9 @@ def find_dbm(request):
     logger.info("***********************in find_dbm() from to : ***********************%s, %s" % (_from, _to))
 
     _from = re.sub("(\-)|(\+)", "", _from)
-    check_and_log_from_organization(_from)
+    if check_and_log_from_organization(_from):
+        incoming_request['outgoing_message'] = STOP_BY_ERROR
+        return incoming_request
 
     organization, error = _get_organization(request)
 
