@@ -39,7 +39,9 @@ def sms(request):
 
     if message == STOP_BY_ERROR:
         logger.info("***********************STOP BY ERROR***********************%s" % STOP_BY_ERROR)
-        relay_message = 'false'
+        response = HttpResponse(message)
+        response['Content-Length'] = len(response.content)
+        return response
 
     logger.info("***********************in sms() after respond***********************%s" % message)
 
