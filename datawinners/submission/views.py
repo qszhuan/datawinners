@@ -1,4 +1,5 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
+from datetime import datetime
 from django.contrib.auth.decorators import login_required
 import re
 from django.http import HttpResponse
@@ -33,7 +34,7 @@ STOP_BY_ERROR="stop by error"
 @csrf_response_exempt
 @require_http_methods(['POST'])
 def sms(request):
-    logger.info("***********************entering sms()***********************")
+    logger.info(datetime.now() + "***********************entering sms()***********************")
     relay_message = 'true'
     message = Responder().respond(request)
 
