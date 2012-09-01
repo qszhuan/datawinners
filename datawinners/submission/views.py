@@ -53,7 +53,7 @@ def web_sms(request):
     message = Responder(next_state_processor=find_dbm_for_web_sms).respond(request)
     return HttpResponse(message)
 
-def check_and_log_from_organization(self, number):
+def check_and_log_from_organization(number):
     organization_setting = OrganizationFinder().find_organization_setting_includes_trial_account(to_tel)
     if organization_setting:
         error_msg = "SMS error: can not send SMS from a datawinners organization: tel number: %s, organization name: %s" % (
