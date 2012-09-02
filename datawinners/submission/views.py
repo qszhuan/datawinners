@@ -28,7 +28,7 @@ from mangrove.errors.MangroveException import DataObjectAlreadyExists
 from datawinners.accountmanagement.views import is_not_expired
 
 logger = logging.getLogger("django")
-STOP_BY_ERROR="stop by error"
+SENDER_IS_ORGANIZATION_ERROR="This should not happen. the message is from an organization!!!"
 
 @csrf_view_exempt
 @csrf_response_exempt
@@ -40,12 +40,12 @@ def sms(request):
     relay_message = 'true'
     message = Responder().respond(request)
 
-    if message == STOP_BY_ERROR:
+    if message == SENDER_IS_ORGANIZATION_ERROR:
         datetime_now = datetime.now()
         logger.debug(datetime_now)
-        logger.info("***********************STOP BY ERROR***********************%s" % STOP_BY_ERROR)
-        response = HttpResponse(message)
-        response['Content-Length'] = len(response.content)
+        logger.info("***********************STOP BY ERROR***********************%s" % SENDER_IS_ORGANIZATION_ERROR)
+        response = HttpResponse('')
+        response['Content-Length'] = 0
         return response
 
     logger.info("***********************in sms() after respond***********************%s" % message)
@@ -88,7 +88,7 @@ def find_dbm(request):
 
     _from = re.sub("(\-)|(\+)", "", _from)
     if check_and_log_from_organization(_from):
-        incoming_request['outgoing_message'] = STOP_BY_ERROR
+        incoming_request['outgoing_message'] = SENDER_IS_ORGANIZATION_ERROR
         return incoming_request
 
     organization, error = _get_organization(request)
