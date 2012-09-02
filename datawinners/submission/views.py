@@ -92,12 +92,12 @@ def find_dbm(request):
 
     organization, error = _get_organization(request)
 
-    logger.info("***********************in find_dbm() organization: ***********************%s" % organization.name)
-
     if error is not None:
         incoming_request['outgoing_message'] = error
         create_failure_log(error, incoming_request)
         return incoming_request
+
+    logger.info("***********************in find_dbm() organization: ***********************%s" % organization.name if organization is not None else 'None')
 
     incoming_request['dbm'] = get_database_manager_for_org(organization)
     incoming_request['organization'] = organization
