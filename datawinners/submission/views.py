@@ -44,8 +44,7 @@ def sms(request):
         datetime_now = datetime.now()
         logger.debug(datetime_now)
         logger.info("***********************STOP BY ERROR***********************%s" % SENDER_IS_ORGANIZATION_ERROR)
-        response = HttpResponse('')
-        response['Content-Length'] = 0
+        response = HttpResponse(status=400)
         return response
 
     logger.info("***********************in sms() after respond***********************%s" % message)
