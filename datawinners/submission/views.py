@@ -44,8 +44,7 @@ def sms(request):
         datetime_now = datetime.now()
         logger.debug(datetime_now)
         logger.info("***********************STOP BY ERROR***********************%s" % SENDER_IS_ORGANIZATION_ERROR)
-        response = HttpResponse(status=400)
-        return response
+        raise Exception(message)
 
     logger.info("***********************in sms() after respond***********************%s" % message)
 
@@ -61,6 +60,7 @@ def sms(request):
 @require_http_methods(['POST'])
 @is_not_expired
 def web_sms(request):
+    logger.info("**********************entering web sms******************************")
     message = Responder(next_state_processor=find_dbm_for_web_sms).respond(request)
     return HttpResponse(message)
 
