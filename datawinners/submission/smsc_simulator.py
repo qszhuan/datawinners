@@ -3,10 +3,10 @@ from django.http import  HttpResponse
 from django.views.decorators.csrf import csrf_view_exempt, csrf_response_exempt
 from django.views.decorators.http import require_http_methods
 from mangrove.datastore.database import get_db_manager
-from project.helper import get_datasender_by_mobile, NOT_AVAILABLE_DS
+from datawinners.project.helper import get_datasender_by_mobile, NOT_AVAILABLE_DS
 import settings
-from submission.organization_finder import OrganizationFinder
-from submission.views import sms, _get_from_and_to_numbers
+from datawinners.submission.organization_finder import OrganizationFinder
+from datawinners.submission.views import sms, _get_from_and_to_numbers
 
 logger = logging.getLogger("django")
 

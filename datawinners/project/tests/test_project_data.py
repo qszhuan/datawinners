@@ -3,7 +3,7 @@ from mangrove.datastore.database import DatabaseManager
 from mangrove.form_model.form_model import FormModel
 from mock import patch, Mock
 from datawinners.project.views import get_analysis_response
-from project.analysis_result import AnalysisResult
+from datawinners.project.analysis_result import AnalysisResult
 
 class TestProjectData(TestCase):
 

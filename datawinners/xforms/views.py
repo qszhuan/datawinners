@@ -11,7 +11,7 @@ from datawinners.accountmanagement.models import Organization
 from datawinners.alldata.helper import get_all_project_for_user
 from datawinners.main.utils import get_database_manager
 from django.contrib.gis.utils import GeoIP
-from messageprovider.messages import SMART_PHONE
+from datawinners.messageprovider.messages import SMART_PHONE
 
 logger = logging.getLogger("datawinners.xform")
 sp_submission_logger = logging.getLogger("sp-submission")

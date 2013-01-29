@@ -15,7 +15,7 @@ from django.conf import settings
 from django.utils import translation
 from django.core.urlresolvers import reverse
 from django.contrib import messages
-from accountmanagement.views import  session_not_expired
+from datawinners.accountmanagement.views import session_not_expired
 from datawinners.project.view_models import ReporterEntity
 from mangrove.datastore.entity import get_by_short_code
 from datawinners.alldata.helper import get_visibility_settings_for
@@ -57,7 +57,6 @@ from datawinners.project import models
 from datawinners.project.web_questionnaire_form_creator import WebQuestionnaireFormCreator, SubjectQuestionFieldCreator
 from datawinners.accountmanagement.views import is_not_expired
 from mangrove.transport.player.parser import XlsDatasenderParser
-from activitylog.models import UserActivityLog
 import helper
 import submission_analyser_helper
 import header_helper
@@ -68,11 +67,20 @@ from project.helper import is_project_exist
 from project.submission_analyzer import SubmissionAnalyzer
 from project.submission_router import SubmissionRouter, successful_submissions
 from project.submission_utils.submission_filter import SubmissionFilter
+from datawinners.activitylog.models import UserActivityLog
+from datawinners.project.Header import SubmissionsPageHeader, Header
+from datawinners.project.analysis_result import AnalysisResult
+from datawinners.project.filters import   KeywordFilter
+from datawinners.project.helper import is_project_exist
+from datawinners.project.submission_analyzer import SubmissionAnalyzer
+from submission_list import SubmissionList
+from datawinners.project.submission_router import SubmissionRouter, successful_submissions
+from datawinners.project.submission_utils.submission_filter import SubmissionFilter
 from datawinners.common.constant import DELETED_PROJECT, ACTIVATED_PROJECT, IMPORTED_DATA_SENDERS,\
     REMOVED_DATA_SENDER_TO_PROJECTS, REGISTERED_SUBJECT, REGISTERED_DATA_SENDER, EDITED_DATA_SENDER, EDITED_PROJECT, \
     DELETED_DATA_SUBMISSION
-from project.submission_utils.submission_formatter import SubmissionFormatter
-from questionnaire.questionnaire_builder import QuestionnaireBuilder
+from datawinners.project.submission_utils.submission_formatter import SubmissionFormatter
+from datawinners.questionnaire.questionnaire_builder import QuestionnaireBuilder
 
 logger = logging.getLogger("django")
 performance_logger = logging.getLogger("performance")
@@ -285,6 +293,52 @@ def _get_submissions_by_type(request, manager, form_model):
         return filter(lambda x: not x.status, submissions)
     return submissions
 
+def _build_submission_analyzer_for_submission_log_page(request, manager, form_model):
+    submission_type = request.GET.get('type')
+    filters = request.POST
+    submission_list = SubmissionList(form_model, manager, helper.get_org_id_by_user(request.user), submission_type, filters)
+    return submission_list
+
+def _build_submission_analyzer(request, manager, form_model, is_for_submission_page):
+    submissions = _get_submissions_by_type(request, manager, form_model)
+    filtered_submissions = SubmissionFilter(request.POST, form_model).filter(submissions)
+    analyzer = SubmissionAnalyzer(form_model, manager, helper.get_org_id_by_user(request.user), filtered_submissions,
+        request.POST.get('keyword', ''), is_for_submission_page=is_for_submission_page)
+    return analyzer
+
+
+@login_required(login_url='/login')
+@session_not_expired
+@is_datasender
+@is_not_expired
+# TODO : TW_BLR : delete_submissions should be a separate view with a redirect to this page
+# TODO : TW_BLR : view should be renamed to submission logs
+# TODO : TW_BLR : should have separate view for ui and data
+def project_results(request, project_id=None, questionnaire_code=None):
+    manager = get_database_manager(request.user)
+    form_model = get_form_model_by_code(manager, questionnaire_code)
+
+    if request.method == 'GET':
+        data_sender_ever_submitted = DataSenderHelper(manager, form_model.form_code).get_all_data_senders_ever_submitted(request.user.get_profile().org_id)
+        header = SubmissionsPageHeader(form_model)
+        result_dict = {"header_list": header.header_list,
+                       "header_name_list": repr(encode_json(header.header_list)),
+                       "datasender_list": map(lambda x: x.to_tuple(), data_sender_ever_submitted)
+        }
+        result_dict.update(project_info(request, manager, form_model, project_id, questionnaire_code))
+
+        return render_to_response('project/results.html', result_dict, context_instance=RequestContext(request))
+    if request.method == 'POST':
+        analyzer = _build_submission_analyzer_for_submission_log_page(request, manager, form_model)
+        field_values = SubmissionFormatter().get_formatted_values_for_list(analyzer.get_raw_values())
+        analysis_result = AnalysisResult(field_values, analyzer.get_analysis_statistics(), analyzer.get_data_senders(), analyzer.get_subjects(), analyzer.get_default_sort_order())
+        performance_logger.info("Fetch %d submissions from couchdb." % len(analysis_result.field_values))
+
+        if "id_list" in request.POST:
+            project_infos = project_info(request, manager, form_model, project_id, questionnaire_code)
+            return HttpResponse(_handle_delete_submissions(manager, request, project_infos.get("project").name))
+        return HttpResponse(encode_json({'data_list': analysis_result.field_values,
+                                         "statistics_result": analysis_result.statistics_result}))
 
 def _handle_delete_submissions(manager, request, project_name):
     submission_ids = json.loads(request.POST.get('id_list'))
@@ -484,6 +538,12 @@ def _prepare_export_data(request, header_list, formatted_values):
     return exported_data, file_name
 
 
+def _export_submissions_in_xls_for_submission_log_page(request):
+    return _export_submissions_in_xls(request, True)
+
+def _export_submissions_in_xls_for_analysis_page(request):
+    return _export_submissions_in_xls(request, False)
+
 def _export_submissions_in_xls(request, is_for_submission_log_page):
     questionnaire_code = request.POST.get('questionnaire_code')
     manager = get_database_manager(request.user)
@@ -505,7 +565,7 @@ def _export_submissions_in_xls(request, is_for_submission_log_page):
 @is_not_expired
 @timebox
 def export_data(request):
-    return _export_submissions_in_xls(request, False)
+    return _export_submissions_in_xls_for_analysis_page(request)
 
 
 def _create_excel_response(raw_data_list, file_name):
@@ -522,8 +582,7 @@ def _create_excel_response(raw_data_list, file_name):
 @is_datasender
 @is_not_expired
 def export_log(request):
-    return _export_submissions_in_xls(request, True)
-
+    return _export_submissions_in_xls_for_submission_log_page(request)
 
 def _get_imports_subjects_post_url(project_id=None):
     import_url = reverse(import_subjects_from_project_wizard)

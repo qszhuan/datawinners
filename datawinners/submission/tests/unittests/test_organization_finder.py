@@ -1,13 +1,11 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
-import unittest
+from unittest import TestCase
 from mock import Mock, patch
-from nose.plugins.attrib import attr
 from datawinners.accountmanagement.models import Organization, OrganizationSetting
 from datawinners.submission.organization_finder import OrganizationFinder
 
-@attr('unit_test')
-class TestOrganizationFinder(unittest.TestCase):
+class TestOrganizationFinder(TestCase):
 
     def test_should_find_organization_for_paid_account_using_any_of_multiple_registered_phone_numbers(self):
         mock_org = Mock(spec=Organization)
@@ -17,8 +15,8 @@ class TestOrganizationFinder(unittest.TestCase):
         mock_org_setting.organization = mock_org
         mock_org_setting.sms_tel_number  = '3283298932,328,298,932'
 
-        with patch.object(OrganizationFinder, "_find_organization_settings") as func_mock:
-            func_mock.return_value = [mock_org_setting]
+        with patch("datawinners.submission.organization_finder.OrganizationFinder.find_organization_setting") as func_mock:
+            func_mock.return_value = mock_org_setting
 
             org, error = OrganizationFinder().find_paid_organization('3283298932')
             self.assertIsNotNone(org)
@@ -33,8 +31,8 @@ class TestOrganizationFinder(unittest.TestCase):
         mock_org_setting.organization = mock_org
         mock_org_setting.sms_tel_number  = '3283298932,328,298,932'
 
-        with patch.object(OrganizationFinder, "_find_organization_settings") as func_mock:
-            func_mock.return_value = [mock_org_setting]
+        with patch("submission.organization_finder.OrganizationFinder.find_organization_setting") as func_mock:
+            func_mock.return_value = mock_org_setting
 
             org, error = OrganizationFinder().find_paid_organization('32')
             self.assertIsNone(org)
@@ -53,7 +51,7 @@ class TestOrganizationFinder(unittest.TestCase):
         mock_org1, mock_org_setting1 = self.create_mock_org_and_org_setting(org_name = 'Argha\'s TEST Organization', phone_numbers = '3283298932,328,298,932')
         mock_org2, mock_org_setting2 = self.create_mock_org_and_org_setting(org_name = 'Ashish\'s TEST Organization', phone_numbers = '328329893,327,292')
 
-        with patch.object(OrganizationFinder, "_find_organization_settings") as func_mock:
+        with patch("datawinners.submission.organization_finder.OrganizationFinder._find_organization_settings") as func_mock:
             func_mock.return_value = [mock_org_setting1, mock_org_setting2]
 
             org, error = OrganizationFinder().find_paid_organization('328329893')

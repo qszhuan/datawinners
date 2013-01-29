@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.http import Http404
 from django.utils.translation import gettext as _
 from django.utils.translation import ugettext
-from accountmanagement.models import NGOUserProfile
+from datawinners.accountmanagement.models import NGOUserProfile
 from datawinners.scheduler.smsclient import SMSClient
 from mangrove.datastore.datadict import create_datadict_type, get_datadict_type_by_slug
 from mangrove.errors.MangroveException import DataObjectNotFound, FormModelDoesNotExistsException
@@ -13,13 +13,13 @@ from mangrove.form_model.field import TextField, IntegerField, DateField, GeoCod
 from mangrove.form_model.form_model import FormModel, get_form_model_by_code
 from mangrove.form_model.validation import  TextLengthConstraint
 from mangrove.utils.types import  is_sequence, sequence_to_str
-from enhancer import field_enhancer
+from datawinners.enhancer import field_enhancer
 import models
 from datetime import datetime
 from mangrove.transport.submissions import  Submission, get_submissions
 from models import Reminder
 from mangrove.transport import Request, TransportInfo
-from project.data_sender import DataSender
+from datawinners.project.data_sender import DataSender
 
 SUBMISSION_DATE_FORMAT_FOR_SUBMISSION_LOG = "%b. %d, %Y, %I:%M %p"
 

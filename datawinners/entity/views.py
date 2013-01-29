@@ -12,7 +12,7 @@ from django.template.context import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt, csrf_response_exempt
 from django.views.decorators.http import require_http_methods
 from django.utils.translation import ugettext as _, activate, get_language
-from accountmanagement.views import session_not_expired
+from datawinners.accountmanagement.views import session_not_expired
 from datawinners import utils
 from datawinners.project.view_models import ReporterEntity
 from mangrove.form_model.field import field_to_json

@@ -1,9 +1,8 @@
 import unittest
-from unittest import TestCase
 from mangrove.datastore.database import DatabaseManager
 from mangrove.datastore.datadict import DataDictType
 from mangrove.form_model.field import HierarchyField, TextField, DateField, GeoCodeField
-from mangrove.form_model.form_model import FormModel, LOCATION_TYPE_FIELD_NAME, LOCATION_TYPE_FIELD_CODE, GEO_CODE_FIELD_NAME, GEO_CODE
+from mangrove.form_model.form_model import FormModel, LOCATION_TYPE_FIELD_NAME, LOCATION_TYPE_FIELD_CODE, GEO_CODE
 from mock import Mock
 from datawinners.questionnaire.helper import get_location_field_code, get_geo_code_field_question_code, get_report_period_question_name_and_datetime_format
 
