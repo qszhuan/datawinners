@@ -8,8 +8,8 @@ class Analysis(SubmissionData):
 
     def get_leading_part(self):
         leading_part = []
-        for submission in self.submissions:
-            data_sender, rp, subject, submission_date = super(Analysis, self)._get_submission_details()
+        for submission in self.filtered_submissions:
+            data_sender, rp, subject, submission_date = super(Analysis, self)._get_submission_details(submission)
             leading_part.append(
                 filter(lambda x: x, [submission.id, data_sender, submission_date, subject, rp]))
         return leading_part

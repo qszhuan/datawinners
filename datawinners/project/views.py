@@ -296,7 +296,9 @@ def _get_submissions_by_type(request, manager, form_model):
 def _build_submission_analyzer_for_submission_log_page(request, manager, form_model):
     submission_type = request.GET.get('type')
     filters = request.POST
-    submission_list = SubmissionList(form_model, manager, helper.get_org_id_by_user(request.user), submission_type, filters)
+    keyword = request.POST.get('keyword', '')
+    submission_list = SubmissionList(form_model, manager, helper.get_org_id_by_user(request.user), submission_type, filters,
+        keyword)
     return submission_list
 
 def _build_submission_analyzer(request, manager, form_model, is_for_submission_page):
@@ -317,19 +319,19 @@ def _build_submission_analyzer(request, manager, form_model, is_for_submission_p
 def project_results(request, project_id=None, questionnaire_code=None):
     manager = get_database_manager(request.user)
     form_model = get_form_model_by_code(manager, questionnaire_code)
+    analyzer = _build_submission_analyzer_for_submission_log_page(request, manager, form_model)
 
     if request.method == 'GET':
-        data_sender_ever_submitted = DataSenderHelper(manager, form_model.form_code).get_all_data_senders_ever_submitted(request.user.get_profile().org_id)
         header = SubmissionsPageHeader(form_model)
         result_dict = {"header_list": header.header_list,
                        "header_name_list": repr(encode_json(header.header_list)),
-                       "datasender_list": map(lambda x: x.to_tuple(), data_sender_ever_submitted)
+                       "datasender_list": analyzer.get_data_senders(),
+                       "subject_list": analyzer.get_subjects()
         }
         result_dict.update(project_info(request, manager, form_model, project_id, questionnaire_code))
 
         return render_to_response('project/results.html', result_dict, context_instance=RequestContext(request))
     if request.method == 'POST':
-        analyzer = _build_submission_analyzer_for_submission_log_page(request, manager, form_model)
         field_values = SubmissionFormatter().get_formatted_values_for_list(analyzer.get_raw_values())
         analysis_result = AnalysisResult(field_values, analyzer.get_analysis_statistics(), analyzer.get_data_senders(), analyzer.get_subjects(), analyzer.get_default_sort_order())
         performance_logger.info("Fetch %d submissions from couchdb." % len(analysis_result.field_values))
@@ -451,7 +453,7 @@ def _build_submission_analyzer(request, manager, form_model, is_for_submission_p
 @session_not_expired
 @is_datasender
 @is_not_expired
-def project_results(request, project_id=None, questionnaire_code=None):
+def project_results_ash(request, project_id=None, questionnaire_code=None):
     manager = get_database_manager(request.user)
     form_model = get_form_model_by_code(manager, questionnaire_code)
     analyzer = _build_submission_analyzer(request, manager, form_model, True)

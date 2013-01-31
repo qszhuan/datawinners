@@ -105,7 +105,7 @@ class SubmissionData(object):
 
     @timebox
     def _get_field_values(self):
-        submission_values = [(submission.form_model_revision, submission.values) for submission in self.submissions]
+        submission_values = [(submission.form_model_revision, submission.values) for submission in self.filtered_submissions]
         field_values = []
         for row in submission_values:
             self._replace_option_with_real_answer_value(row)
