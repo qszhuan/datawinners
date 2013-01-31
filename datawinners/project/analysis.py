@@ -10,11 +10,7 @@ class Analysis(SubmissionData):
 
     def get_leading_part(self):
         leading_part = []
-#<<<<<<< HEAD
-#        for submission in self.filtered_submissions:
-#=======
-        for submission in self.submissions:
-#>>>>>>> eb90574... Pooja/Lakshmi | #1638 | Added headers and data for export to excel document
+        for submission in self.filtered_submissions:
             data_sender, rp, subject, submission_date = super(Analysis, self)._get_submission_details(submission)
             leading_part.append(
                 filter(lambda x: x, [submission.id, data_sender, submission_date, subject, rp]))

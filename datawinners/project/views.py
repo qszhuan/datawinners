@@ -308,7 +308,6 @@ def project_results(request, project_id=None, questionnaire_code=None):
                        "header_name_list": repr(encode_json(header.header_list)),
                        "datasender_list": analyzer.get_data_senders(),
                        "subject_list": analyzer.get_subjects()
-#                       "datasender_list": map(lambda x: x.to_tuple(), data_sender_ever_submitted)
 #                       "datasender_list": analysis_result.get_data_senders)
 #                       "subject_id": analysis_result.get_subjects)
         }
@@ -316,9 +315,6 @@ def project_results(request, project_id=None, questionnaire_code=None):
 
         return render_to_response('project/results.html', result_dict, context_instance=RequestContext(request))
     if request.method == 'POST':
-        field_values = SubmissionFormatter().get_formatted_values_for_list(analyzer.get_raw_values())
-        analysis_result = AnalysisResult(field_values, analyzer.get_analysis_statistics(), analyzer.get_data_senders(), analyzer.get_subjects(), analyzer.get_default_sort_order())
-#        submission_list = _build_submission_list_for_submission_log_page(request, manager, form_model)
         field_values = SubmissionFormatter().get_formatted_values_for_list(analyzer.get_raw_values())
         analysis_result = AnalysisResult(field_values, analyzer.get_analysis_statistics(), analyzer.get_data_senders(), analyzer.get_subjects(), analyzer.get_default_sort_order())
         performance_logger.info("Fetch %d submissions from couchdb." % len(analysis_result.field_values))
