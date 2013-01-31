@@ -14,7 +14,7 @@ def register_and_get_email(driver):
     registration_page = RegistrationPage(driver)
     return registration_page.successful_registration_with(REGISTRATION_DATA_FOR_SUCCESSFUL_REGISTRATION)
 
-@attr('suit_2')
+#@attr('suit_2')
 class TestRegistrationPage(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

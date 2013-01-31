@@ -13,7 +13,7 @@ import time
 #Check that activation page has the success message
 
 
-@attr('suit_2')
+#@attr('suit_2')
 class TestTrialApplicationEndToEnd(BaseTest):
     def tearDown(self):
         pass

@@ -13,7 +13,7 @@ from tests.logintests.login_data import VALID_CREDENTIALS, USERNAME, PASSWORD
 from tests.alldatasenderstests.add_data_senders_data import *
 from pages.globalnavigationpage.global_navigation_page import GlobalNavigationPage
 
-@attr('suit_1')
+#@attr('suit_1')
 class TestAllDataSender(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

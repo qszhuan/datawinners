@@ -15,7 +15,7 @@ from framework.utils.common_utils import  by_id
 from nose.plugins.skip import SkipTest
 import time
 
-@attr('suit_2')
+#@attr('suit_2')
 class TestEditQuestionnaire(BaseTest):
     def setUp(self):
         super(TestEditQuestionnaire, self).setUp()

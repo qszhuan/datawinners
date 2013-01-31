@@ -13,7 +13,7 @@ from pages.warningdialog.warning_dialog_page import WarningDialog
 from nose.plugins.skip import SkipTest
 import time
 
-@attr('suit_3')
+#@attr('suit_3')
 class TestSubmissionLog(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

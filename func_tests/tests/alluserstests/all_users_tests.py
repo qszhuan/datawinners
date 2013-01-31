@@ -18,7 +18,7 @@ from tests.editquestionnairetests.edit_questionnaire_data import SENDER, RECEIVE
 from pages.smstesterpage.sms_tester_page import SMSTesterPage
 from pages.activitylogpage.show_activity_log_page import ShowActivityLogPage
 
-@attr('suit_1')
+#@attr('suit_1')
 class TestAllUsers(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

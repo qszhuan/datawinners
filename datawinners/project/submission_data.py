@@ -178,3 +178,4 @@ class SubmissionData(object):
                 for option in each.options:
                     result[each.name]['choices'][option['text']] = 0
         return result
+

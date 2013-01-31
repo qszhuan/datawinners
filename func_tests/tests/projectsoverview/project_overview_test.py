@@ -8,7 +8,7 @@ from tests.logintests.login_data import VALID_CREDENTIALS
 from tests.projectsoverview.project_overview_data import PROJECT_NAME, PREVIEW_TITLE, MC_QUESTION_CONTENT
 
 
-@attr('suit_1')
+#@attr('suit_1')
 class TestProjectOverview(BaseTest):
     def prerequisites_of_project_overview(self):
         # doing successful login with valid credentials

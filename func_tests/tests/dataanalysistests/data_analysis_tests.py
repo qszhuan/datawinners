@@ -13,7 +13,7 @@ DD_MM_YYYY_FORMAT = '%d.%m.%Y'
 
 MONTHLY_REPORTING_PERIOD_FORMAT = "%m.%Y"
 
-@attr('suit_1')
+#@attr('suit_1')
 class TestDataAnalysis(BaseTest):
     @classmethod
     def setUpClass(cls):

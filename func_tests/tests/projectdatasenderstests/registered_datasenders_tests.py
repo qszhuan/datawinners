@@ -11,7 +11,7 @@ from tests.projectdatasenderstests.registered_datasenders_data import *
 from pages.adddatasenderspage.add_data_senders_locator import REGISTERED_DATASENDERS_LOCATOR
 
 
-@attr('suit_2')
+#@attr('suit_2')
 class ProjectDataSenders(BaseTest):
     def tearDown(self):
         super(ProjectDataSenders, self).tearDown()

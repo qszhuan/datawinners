@@ -15,7 +15,7 @@ from tests.projectdatasenderstests.registered_datasenders_data import IMPORT_DAT
 import time
 from pages.warningdialog.warning_dialog_page import WarningDialog
 
-@attr('suit_1')
+#@attr('suit_1')
 class TestAllDataSender(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

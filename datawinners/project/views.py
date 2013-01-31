@@ -58,6 +58,7 @@ from datawinners.project.web_questionnaire_form_creator import WebQuestionnaireF
 from datawinners.accountmanagement.views import is_not_expired
 from mangrove.transport.player.parser import XlsDatasenderParser
 import helper
+from project.analysis import Analysis
 import submission_analyser_helper
 import header_helper
 from project.Header import SubmissionsPageHeader, Header
@@ -270,18 +271,6 @@ def project_overview(request, project_id=None):
         'questionnaire_code': questionnaire_code,
         }))
 
-
-def delete_submissions_by_ids(manager, request, submission_ids):
-    received_times = []
-    for submission_id in submission_ids:
-        submission = Submission.get(manager, submission_id)
-        received_times.append(datetime.datetime.strftime(submission.created, "%d/%m/%Y %X"))
-        submission.void()
-        if submission.data_record:
-            ReportRouter().delete(get_organization(request).org_id, submission.form_code, submission.data_record.id)
-    return received_times
-
-
 def filter_by_keyword(keyword, raw_field_values):
     return KeywordFilter(keyword).filter(raw_field_values)
 
@@ -293,21 +282,13 @@ def _get_submissions_by_type(request, manager, form_model):
         return filter(lambda x: not x.status, submissions)
     return submissions
 
-def _build_submission_analyzer_for_submission_log_page(request, manager, form_model):
+def _build_submission_list_for_submission_log_page(request, manager, form_model):
     submission_type = request.GET.get('type')
     filters = request.POST
     keyword = request.POST.get('keyword', '')
     submission_list = SubmissionList(form_model, manager, helper.get_org_id_by_user(request.user), submission_type, filters,
         keyword)
     return submission_list
-
-def _build_submission_analyzer(request, manager, form_model, is_for_submission_page):
-    submissions = _get_submissions_by_type(request, manager, form_model)
-    filtered_submissions = SubmissionFilter(request.POST, form_model).filter(submissions)
-    analyzer = SubmissionAnalyzer(form_model, manager, helper.get_org_id_by_user(request.user), filtered_submissions,
-        request.POST.get('keyword', ''), is_for_submission_page=is_for_submission_page)
-    return analyzer
-
 
 @login_required(login_url='/login')
 @session_not_expired
@@ -319,7 +300,7 @@ def _build_submission_analyzer(request, manager, form_model, is_for_submission_p
 def project_results(request, project_id=None, questionnaire_code=None):
     manager = get_database_manager(request.user)
     form_model = get_form_model_by_code(manager, questionnaire_code)
-    analyzer = _build_submission_analyzer_for_submission_log_page(request, manager, form_model)
+    analyzer = _build_submission_list_for_submission_log_page(request, manager, form_model)
 
     if request.method == 'GET':
         header = SubmissionsPageHeader(form_model)
@@ -327,11 +308,17 @@ def project_results(request, project_id=None, questionnaire_code=None):
                        "header_name_list": repr(encode_json(header.header_list)),
                        "datasender_list": analyzer.get_data_senders(),
                        "subject_list": analyzer.get_subjects()
+#                       "datasender_list": map(lambda x: x.to_tuple(), data_sender_ever_submitted)
+#                       "datasender_list": analysis_result.get_data_senders)
+#                       "subject_id": analysis_result.get_subjects)
         }
         result_dict.update(project_info(request, manager, form_model, project_id, questionnaire_code))
 
         return render_to_response('project/results.html', result_dict, context_instance=RequestContext(request))
     if request.method == 'POST':
+        field_values = SubmissionFormatter().get_formatted_values_for_list(analyzer.get_raw_values())
+        analysis_result = AnalysisResult(field_values, analyzer.get_analysis_statistics(), analyzer.get_data_senders(), analyzer.get_subjects(), analyzer.get_default_sort_order())
+#        submission_list = _build_submission_list_for_submission_log_page(request, manager, form_model)
         field_values = SubmissionFormatter().get_formatted_values_for_list(analyzer.get_raw_values())
         analysis_result = AnalysisResult(field_values, analyzer.get_analysis_statistics(), analyzer.get_data_senders(), analyzer.get_subjects(), analyzer.get_default_sort_order())
         performance_logger.info("Fetch %d submissions from couchdb." % len(analysis_result.field_values))
@@ -483,6 +470,10 @@ def project_results_ash(request, project_id=None, questionnaire_code=None):
         return HttpResponse(encode_json({'data_list': analysis_result.field_values,
                                          "statistics_result": analysis_result.statistics_result}))
 
+def _build_submission_analyzer_for_analysis(request, manager, form_model):
+    submission_type = request.GET.get('type', None)
+    filters = request.POST
+    return Analysis(form_model,manager,helper.get_org_id_by_user(request.user), submission_type, filters).init_excel_values()
 
 # TODO : Figure out how to mock mangrove methods
 def get_form_model_by_question_code(manager, questionnaire_code):
@@ -544,14 +535,17 @@ def _export_submissions_in_xls_for_submission_log_page(request):
     return _export_submissions_in_xls(request, True)
 
 def _export_submissions_in_xls_for_analysis_page(request):
-    return _export_submissions_in_xls(request, False)
+    questionnaire_code = request.POST.get('questionnaire_code')
+    manager = get_database_manager(request.user)
+    form_model = get_form_model_by_code(manager, questionnaire_code)
+    analyzer = _build_submission_analyzer_for_analysis(request, manager, form_model)
 
 def _export_submissions_in_xls(request, is_for_submission_log_page):
     questionnaire_code = request.POST.get('questionnaire_code')
     manager = get_database_manager(request.user)
     form_model = get_form_model_by_code(manager, questionnaire_code)
 
-    analyzer = _build_submission_analyzer(request, manager, form_model, is_for_submission_log_page)
+    analyzer = _build_submission_analyzer_for_analysis(request, manager, form_model, is_for_submission_log_page)
     formatted_values = SubmissionFormatter().get_formatted_values_for_list(analyzer.get_raw_values(), tuple_format=XLS_TUPLE_FORMAT)
 
     header_list = SubmissionsPageHeader(form_model).header_list if is_for_submission_log_page else Header(form_model).header_list

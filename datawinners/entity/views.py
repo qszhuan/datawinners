@@ -612,7 +612,7 @@ def create_subject(request, entity_type=None):
 
             response = WebPlayer(manager,
                 LocationBridge(location_tree=get_location_tree(), get_loc_hierarchy=get_location_hierarchy)).accept(
-                create_request(questionnaire_form, request.user.username), logger=websubmission_logger)
+                create_request(questionnaire_form, request.user.username))
             if response.success:
                 ReportRouter().route(get_organization(request).org_id, response)
                 success_message = (_("Successfully submitted. Unique identification number(ID) is:") + " %s") % (

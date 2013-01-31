@@ -9,7 +9,7 @@ from tests.logintests.login_data import VALID_CREDENTIALS, USERNAME, PASSWORD, D
 from pages.globalnavigationpage.global_navigation_page import GlobalNavigationPage
 from pages.alldatapage.all_data_page import AllDataPage
 
-@attr('suit_1')
+#@attr('suit_1')
 class TestAllData(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

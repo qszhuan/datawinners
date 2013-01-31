@@ -26,7 +26,7 @@ class BasePrepare(BaseTest):
             fetch_(PROJECT_NAME, from_(project_to_open)))
         return project_overview_page.open_sms_tester_light_box()
 
-@attr('suit_3')
+#@attr('suit_3')
 class TestSMSTesterLightBox(BasePrepare):
 
     @attr('functional_test', 'smoke')
