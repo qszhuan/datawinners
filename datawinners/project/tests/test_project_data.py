@@ -2,8 +2,8 @@ from unittest import TestCase
 from mangrove.datastore.database import DatabaseManager
 from mangrove.form_model.form_model import FormModel
 from mock import patch, Mock
-from datawinners.project.views import get_analysis_response
 from datawinners.project.analysis_result import AnalysisResult
+from project.submission_views import get_analysis_response
 
 class TestProjectData(TestCase):
 

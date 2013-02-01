@@ -5,6 +5,7 @@ import unittest
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.forms.forms import Form
+from entity.views import all_datasenders
 from mangrove.datastore.datadict import DataDictType
 from mangrove.form_model.field import TextField, DateField
 from entity.forms import ReporterRegistrationForm
@@ -13,12 +14,13 @@ from mangrove.form_model.form_model import FormModel
 from mangrove.transport.submissions import Submission
 from mock import Mock, patch
 from datawinners.project.models import Reminder, RemindTo, ReminderMode, Project
-from datawinners.project.views import _format_reminders, subject_registration_form_preview, registered_subjects, edit_subject_questionaire, create_data_sender_and_web_user, registered_datasenders, make_data_sender_links, add_link, all_datasenders, _prepare_export_data
+from datawinners.project.views import _format_reminders, subject_registration_form_preview, registered_subjects, edit_subject_questionaire, create_data_sender_and_web_user, registered_datasenders, make_data_sender_links, add_link
 from datawinners.project.views import make_subject_links, subjects
 from project.models import ProjectState
 from project.preview_views import get_sms_preview_context, get_questions, get_web_preview_context, add_link_context
 from project.submission_router import SubmissionRouter
-from project.views import get_form_model_and_template, get_preview_and_instruction_links_for_questionnaire, delete_submissions_by_ids, append_success_to_context, formatted_data
+from project.submission_views import delete_submissions_by_ids, _prepare_export_data
+from project.views import get_form_model_and_template, get_preview_and_instruction_links_for_questionnaire, append_success_to_context, formatted_data
 from project.wizard_view import get_preview_and_instruction_links, get_reporting_period_field
 from questionnaire.questionnaire_builder import get_max_code
 
@@ -238,9 +240,9 @@ class TestProjectViews( unittest.TestCase ):
         submission = Mock( spec=Submission )
         submission.created = date( 2012, 8, 20 )
         submission.data_record = None
-        with patch( "project.views.Submission.get" ) as get_submission:
+        with patch( "project.submission_views.Submission.get" ) as get_submission:
             get_submission.return_value = submission
-            with patch( "project.views.get_organization" ) as get_organization:
+            with patch( "project.submission_views.get_organization" ) as get_organization:
                 get_organization.return_value = Mock( )
                 received_times = delete_submissions_by_ids( dbm, request, ['1'] )
                 self.assertEqual( ['20/08/2012 00:00:00'], received_times )
