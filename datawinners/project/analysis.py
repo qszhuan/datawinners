@@ -7,6 +7,7 @@ from project.submission_utils.submission_formatter import SubmissionFormatter
 class Analysis(SubmissionData):
     def __init__(self, form_model, manager, org_id, submission_type, filters):
         super(Analysis, self).__init__(form_model, manager, org_id, Header, submission_type, filters)
+        self._init_raw_values()
 
     def get_leading_part(self):
         leading_part = []
@@ -29,6 +30,7 @@ class Analysis(SubmissionData):
 
         return AnalysisResult(field_values, analysis_statistics, data_sender_list, subject_lists, default_sort_order)
 
+    #change to get_leading_part()
     def _init_excel_values(self):
         leading_part = []
         for submission in self.submissions:

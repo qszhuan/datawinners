@@ -163,6 +163,7 @@ def get_form_model_by_question_code(manager, questionnaire_code):
 def filter_submissions(form_model, manager, request):
     return SubmissionFilter(request.POST, form_model).filter(successful_submissions(manager, form_model.form_code))
 
+#export_submissions_in_xls_for_submission_log
 def _export_submissions_in_xls(request, is_for_submission_log_page):
     questionnaire_code = request.POST.get('questionnaire_code')
     manager = get_database_manager(request.user)
@@ -177,9 +178,18 @@ def _export_submissions_in_xls(request, is_for_submission_log_page):
 
     return _create_excel_response(exported_data, file_name)
 
-
+#No need of this func
 def _export_submissions_in_xls_for_submission_log_page(request):
     return _export_submissions_in_xls(request, True)
+
+@login_required(login_url='/login')
+@session_not_expired
+@is_datasender
+@is_not_expired
+@timebox
+#export_submissions_for_analysis
+def export_data(request):
+    return _export_submissions_in_xls_for_analysis_page(request)
 
 def _export_submissions_in_xls_for_analysis_page(request):
     questionnaire_code = request.POST.get('questionnaire_code')
@@ -187,18 +197,20 @@ def _export_submissions_in_xls_for_analysis_page(request):
     form_model = get_form_model_by_code(manager, questionnaire_code)
     analyzer = _build_submission_analyzer_for_analysis(request, manager, form_model)
 
-def _build_submission_analyzer_for_analysis(request, manager, form_model):
-    submission_type = request.GET.get('type', None)
-    filters = request.POST
-    return Analysis(form_model,manager,helper.get_org_id_by_user(request.user), submission_type, filters)._init_excel_values()
+    #this will have all answers
+    formatted_values = SubmissionFormatter().get_formatted_values_for_list(analyzer.get_raw_values(),tuple_format=XLS_TUPLE_FORMAT)
 
-@login_required(login_url='/login')
-@session_not_expired
-@is_datasender
-@is_not_expired
-@timebox
-def export_data(request):
-    return _export_submissions_in_xls_for_analysis_page(request)
+    header_list = Header(form_model).header_list
+
+    exported_data, file_name = _prepare_export_data(request, header_list, formatted_values)
+
+    return _create_excel_response(exported_data, file_name)
+
+def _build_submission_analyzer_for_analysis(request, manager, form_model):
+    #Analysis page wont hv any type since it has oly success submission data.
+    submission_type = request.GET.get('type',None)
+    filters = request.POST
+    return Analysis(form_model,manager,helper.get_org_id_by_user(request.user), submission_type, filters)
 
 @login_required(login_url='/login')
 @session_not_expired
