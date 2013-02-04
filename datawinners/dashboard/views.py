@@ -21,6 +21,7 @@ from datawinners.project.models import ProjectState, Project
 from datawinners.project.wizard_view import edit_project
 from mangrove.form_model.form_model import FormModel
 from mangrove.transport import Channel
+from project.views import project_overview
 
 def _find_reporter_name(dbm, row):
     channel = row.value.get("channel")
@@ -92,9 +93,9 @@ def dashboard(request):
             link = reverse(edit_project,args=(row['value']['_id'],))
         project = dict(name=row['value']['name'], link=link, inactive=is_project_inactive(row), id=row['value']['_id'])
         project_list.append(project)
-    language = request.session.get("django_language", "en")
-    return render_to_response('dashboard/home.html',
-            {"projects": project_list, 'trial_account': organization.in_trial_mode, 'language':language}, context_instance=RequestContext(request))
+#    language = request.session.get("django_language", "en")
+#    return render_to_response('dashboard/home.html',{"projects": project_list, 'trial_account': organization.in_trial_mode, 'language':language}, context_instance=RequestContext(request))
+    return render_to_response('dashboard/home.html',{"projects": project_list, 'trial_account': organization.in_trial_mode}, context_instance=RequestContext(request))
 
 
 @login_required(login_url='/login')

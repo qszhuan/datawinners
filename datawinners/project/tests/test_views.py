@@ -5,7 +5,6 @@ import unittest
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.forms.forms import Form
-from entity.views import all_datasenders
 from mangrove.datastore.datadict import DataDictType
 from mangrove.form_model.field import TextField, DateField
 from entity.forms import ReporterRegistrationForm
@@ -14,12 +13,12 @@ from mangrove.form_model.form_model import FormModel
 from mangrove.transport.submissions import Submission
 from mock import Mock, patch
 from datawinners.project.models import Reminder, RemindTo, ReminderMode, Project
-from datawinners.project.views import _format_reminders, subject_registration_form_preview, registered_subjects, edit_subject_questionaire, create_data_sender_and_web_user, registered_datasenders, make_data_sender_links, add_link
-from datawinners.project.views import make_subject_links, subjects
+from datawinners.project.views import _format_reminders, make_data_sender_links, add_link
 from project.models import ProjectState
 from project.preview_views import get_sms_preview_context, get_questions, get_web_preview_context, add_link_context
 from project.submission_router import SubmissionRouter
 from project.submission_views import delete_submissions_by_ids, _prepare_export_data
+from project.utils import make_subject_links
 from project.views import get_form_model_and_template, get_preview_and_instruction_links_for_questionnaire, append_success_to_context, formatted_data
 from project.wizard_view import get_preview_and_instruction_links, get_reporting_period_field
 from questionnaire.questionnaire_builder import get_max_code
@@ -55,21 +54,21 @@ class TestProjectViews( unittest.TestCase ):
     def test_should_return_subject_project_links(self):
         project_id = "1"
         subject_links = make_subject_links(project_id)
-        self.assertEqual( reverse( subjects, args=[project_id] ), subject_links['subjects_link'] )
-        self.assertEqual( reverse( edit_subject_questionaire, args=[project_id] ), subject_links['subjects_edit_link'] )
-        self.assertEqual( reverse( subject_registration_form_preview, args=[project_id] ),
+        self.assertEqual( reverse( 'subjects', args=[project_id] ), subject_links['subjects_link'] )
+        self.assertEqual( reverse( 'edit_subject_questionaire', args=[project_id] ), subject_links['subjects_edit_link'] )
+        self.assertEqual( reverse( 'subject_registration_form_preview', args=[project_id] ),
                           subject_links['subject_registration_preview_link'] )
-        self.assertEqual( reverse( registered_subjects, args=[project_id] ), subject_links['registered_subjects_link'] )
+        self.assertEqual( reverse( 'registered_subjects', args=[project_id] ), subject_links['registered_subjects_link'] )
         self.assertEqual( reverse( 'subject_questionnaire', args=[project_id] ),
                           subject_links['register_subjects_link'] )
 
     def test_should_return_datasender_project_links(self):
         project_id = "1"
         datasender_links = make_data_sender_links( project_id )
-        self.assertEqual( reverse( all_datasenders ), datasender_links['datasenders_link'] )
-        self.assertEqual( reverse( create_data_sender_and_web_user, args=[project_id] ),
+        self.assertEqual( reverse( 'all_datasenders' ), datasender_links['datasenders_link'] )
+        self.assertEqual( reverse( 'create_data_sender_and_web_user', args=[project_id] ),
                           datasender_links['register_datasenders_link'] )
-        self.assertEqual( reverse( registered_datasenders, args=[project_id] ),
+        self.assertEqual( reverse( 'registered_datasenders', args=[project_id] ),
                           datasender_links['registered_datasenders_link'] )
 
 
@@ -86,7 +85,7 @@ class TestProjectViews( unittest.TestCase ):
         project.id = "1"
         project.entity_type = "reporter"
         link = add_link( project )
-        self.assertEqual( reverse( create_data_sender_and_web_user, args=[project.id] ), link.url )
+        self.assertEqual( reverse( 'create_data_sender_and_web_user', args=[project.id] ), link.url )
         self.assertEqual( 'Add a data sender', link.text )
 
     def test_should_get_correct_template_for_non_data_sender(self):

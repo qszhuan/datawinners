@@ -129,11 +129,11 @@ def index(request):
     rows = models.get_all_projects(dbm=get_database_manager(request.user))
     for row in rows:
         project_id = row['value']['_id']
-        link = reverse("project_overview", args=[project_id])
+        link = reverse('project-overview', args=[project_id])
         if row['value']['state'] == 'Inactive':
-            link = reverse(edit_project, args=[project_id])
-        activate_link = reverse(activate_project, args=[project_id])
-        delete_link = reverse(delete_project, args=[project_id])
+            link = reverse('edit_project', args=[project_id])
+        activate_link = reverse('activate_project', args=[project_id])
+        delete_link = reverse('delete_project', args=[project_id])
         project = dict(delete_link=delete_link, name=row['value']['name'], created=row['value']['created'],
             type=row['value']['project_type'],
             link=link, activate_link=activate_link, state=row['value']['state'])
@@ -290,7 +290,7 @@ def _format_reminder(reminder, project_id):
     return dict(message=reminder.message, id=reminder.id,
         to=_format_string_for_reminder_table(reminder.remind_to),
         when=_make_reminder_mode(reminder.reminder_mode, reminder.day),
-        delete_link=reverse(delete_reminder, args=[project_id, reminder.id]))
+        delete_link=reverse('delete_reminder', args=[project_id, reminder.id]))
 
 def _format_reminders(reminders, project_id):
     return [_format_reminder(reminder, project_id) for reminder in reminders]
