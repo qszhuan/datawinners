@@ -446,7 +446,7 @@ def activate_project(request, project_id=None):
     for submission in submissions:
         submission.void()
     UserActivityLog().log(request, action=ACTIVATED_PROJECT, project=project.name)
-    return HttpResponseRedirect(reverse(project_overview, args=[project_id]))
+    return HttpResponseRedirect(reverse('project-overview', args=[project_id]))
 
 
 @login_required(login_url='/login')

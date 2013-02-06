@@ -21,7 +21,7 @@ def make_data_sender_links(project_id, reporter_id=None):
 
 def make_project_links(project, questionnaire_code, reporter_id=None):
     project_id = project.id
-    project_links = {'overview_link': reverse("project_overview", args=[project_id]),
+    project_links = {'overview_link': reverse("project-overview", args=[project_id]),
                      'activate_project_link': reverse("activate_project", args=[project_id]),
                      'delete_project_link': reverse("delete_project", args=[project_id]),
                      'questionnaire_preview_link': reverse("questionnaire_preview", args=[project_id]),

@@ -10,8 +10,6 @@ from datawinners.alldata.helper import get_all_project_for_user, get_visibility_
 from datawinners.settings import CRS_ORG_ID
 from datawinners.main.utils import get_database_manager
 from datawinners.project.models import ProjectState, Project
-from datawinners.project.views import project_overview
-from datawinners.project.submission_views import project_data, project_results
 from mangrove.datastore.entity import get_all_entities
 from mangrove.datastore.entity_type import get_all_entity_types
 from mangrove.form_model.form_model import FormModel

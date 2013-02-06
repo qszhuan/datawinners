@@ -21,7 +21,6 @@ from datawinners.project.models import ProjectState, Project
 from datawinners.project.wizard_view import edit_project
 from mangrove.form_model.form_model import FormModel
 from mangrove.transport import Channel
-from project.views import project_overview
 
 def _find_reporter_name(dbm, row):
     channel = row.value.get("channel")

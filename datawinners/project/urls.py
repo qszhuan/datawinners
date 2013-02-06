@@ -1,11 +1,11 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 from django.conf.urls.defaults import patterns, url
-from datawinners.entity.views import edit_subject, save_questionnaire, edit_data_sender
+from datawinners.entity.views import edit_subject, save_questionnaire, edit_data_sender, disassociate_datasenders
 
 from datawinners.project.wizard_view import create_project, edit_project, reminders, reminder_settings
 from datawinners.project.preview_views import sms_preview, web_preview, smart_phone_preview, questionnaire_sms_preview, questionnaire_web_preview
 from project.submission_views import project_results, project_data, export_data, export_log
-from project.views import disassociate_datasenders, questionnaire, web_questionnaire, create_data_sender_and_web_user, questionnaire_preview, subject_registration_form_preview, sender_registration_form_preview, index, project_overview, subjects, registered_subjects, registered_datasenders, create_reminder, get_reminder, delete_reminder, broadcast_message, manage_reminders, sent_reminders, activate_project, delete_project, undelete_project, submissions, review_and_test, edit_subject_questionaire, project_has_data
+from project.views import questionnaire, web_questionnaire, create_data_sender_and_web_user, questionnaire_preview, subject_registration_form_preview, sender_registration_form_preview, index, project_overview, subjects, registered_subjects, registered_datasenders, create_reminder, get_reminder, delete_reminder, broadcast_message, manage_reminders, sent_reminders, activate_project, delete_project, undelete_project, submissions, review_and_test, edit_subject_questionaire, project_has_data
 
 js_info_dict = {
     'domain': 'djangojs',
@@ -15,7 +15,7 @@ js_info_dict = {
 urlpatterns = patterns('',
     (r'^jsi18n/$', 'django.views.i18n.javascript_catalog', js_info_dict),
     (r'^project/disassociate/$', disassociate_datasenders),
-    (r'^project/questionnaire/(?P<project_id>\w+?)/$', questionnaire),
+    url(r'^project/questionnaire/(?P<project_id>\w+?)/$', questionnaire, name='questionnaire'),
     url(r'^project/register_subjects/(?P<project_id>\w+?)/$', web_questionnaire, {'subject': True},
         name="subject_questionnaire"),
     url(r'^project/testquestionnaire/(?P<project_id>\w+?)/$', web_questionnaire, name="web_questionnaire"),
@@ -24,7 +24,7 @@ urlpatterns = patterns('',
     url(r'^project/preview/sms_questionnaire/(?P<project_id>\w+?)/$', questionnaire_preview, {'sms_preview': True},
         name="sms_questionnaire_preview"),
     url(r'^project/preview/subject_registration_form/preview/(?P<project_id>\w+?)/$', subject_registration_form_preview, name="subject_registration_form_preview"),
-    url(r'^project/preview/sender_registration_form/preview/(?P<project_id>\w+?)/$', sender_registration_form_preview, name="subject_registration_form_preview"),
+    url(r'^project/preview/sender_registration_form/preview/(?P<project_id>\w+?)/$', sender_registration_form_preview, name="sender_registration_form_preview"),
     (r'^project/wizard/create/$', create_project),
     url(r'^project/wizard/edit/(?P<project_id>\w+?)/$', edit_project, name="edit_project"),
     (r'^project/questionnaire/save$', save_questionnaire),
@@ -41,15 +41,15 @@ urlpatterns = patterns('',
     (r'^project/get_reminder/(?P<project_id>.+?)/$', get_reminder),
     url(r'^project/delete_reminder/(?P<project_id>.+?)/(?P<reminder_id>.+?)/$', delete_reminder, name="delete_reminder"),
     (r'^project/reminderspage/(?P<project_id>.+?)/$', reminders),
-    (r'^project/broadcast_message/(?P<project_id>.+?)/$', broadcast_message),
+    url(r'^project/broadcast_message/(?P<project_id>.+?)/$', broadcast_message, name='broadcast_message'),
     (r'^project/reminders/(?P<project_id>.+?)/$', manage_reminders),
-    (r'^project/sent_reminders/(?P<project_id>.+?)/$', sent_reminders),
-    (r'^project/set_reminder/(?P<project_id>.+?)/$', reminder_settings),
+    url(r'^project/sent_reminders/(?P<project_id>.+?)/$', sent_reminders, name='sent_reminders'),
+    url(r'^project/set_reminder/(?P<project_id>.+?)/$', reminder_settings, name='reminder_settings'),
     url(r'^project/activate/(?P<project_id>.+?)/$', activate_project, name="activate_project"),
     url(r'^project/delete/(?P<project_id>.+?)/$', delete_project, name="delete_project"),
     (r'^project/undelete/(?P<project_id>.+?)/$', undelete_project),
     (r'^project/datarecords/filter$', submissions),
-    (r'^project/finish/(?P<project_id>.+?)/$', review_and_test),
+    url(r'^project/finish/(?P<project_id>.+?)/$', review_and_test, name='review_and_test'),
     url(r'^project/edit_subjects/(?P<project_id>.+?)/$', edit_subject_questionaire, name = "edit_subject_questionaire"),
     url(r'^project/sms_preview$', sms_preview, name="sms_preview"),
     url(r'^project/web_preview$', web_preview, name="web_preview"),

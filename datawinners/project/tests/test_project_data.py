@@ -1,6 +1,5 @@
 from unittest import TestCase, SkipTest
 from mock import Mock, patch
-from psycopg2.tests.testutils import skipTest
 from mangrove.datastore.database import DatabaseManager
 from mangrove.form_model.form_model import FormModel
 from datawinners.project.analysis_result import AnalysisResult
