@@ -1,5 +1,6 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 from django.template.defaultfilters import slugify
+from fabric.colors import white
 import xlwt
 from datetime import datetime
 from mangrove.datastore.database import get_db_manager
@@ -58,7 +59,7 @@ def _clean(row):
         new_row.append(each)
     return new_row
 
-def workbook_add_sheet(wb, raw_data, sheet_name):
+def workbook_add_sheet_(wb, raw_data, sheet_name):
     ws = wb.add_sheet(sheet_name)
     default_cell_style=xlwt.Style.default_style
     dt_cell_style = xlwt.easyxf(num_format_str='dd-mm-yyyy hh:mm:ss')
@@ -69,6 +70,39 @@ def workbook_add_sheet(wb, raw_data, sheet_name):
             gangnam_style = dt_cell_style if isinstance(val, datetime) else default_cell_style;
             ws.write(row_number, col_number, val, style=gangnam_style)
     return ws
+
+def workbook_add_sheet(wb, raw_data, sheet_name):
+    ws = wb.add_sheet(sheet_name)
+    default_cell_style=xlwt.Style.default_style
+    dt_cell_style = xlwt.easyxf(num_format_str='dd-mm-yyyy hh:mm:ss')
+    my_font = xlwt.Font()
+    my_font.name = 'Times New Roman'
+    my_font.bold = True
+    my_font.colour_index = 0x33
+    my_pattern = xlwt.Pattern()
+    #https://secure.simplistix.co.uk/svn/xlwt/trunk/xlwt/Style.py for color codes
+    my_pattern.pattern = 0x14
+    header_style = xlwt.easyxf()
+    header_style.font = my_font
+    header_style.pattern = my_pattern
+    for row_number, row  in enumerate(raw_data):
+
+        if(row_number == 0):
+            row = _clean(row)
+            for col_number, val in enumerate(row):
+                ws.col(col_number).width = 256 * (len(val) + 3)
+                ws.write(row_number,col_number, val, header_style)
+
+        if (row_number!=0):
+            if row_number > 0 and row_number % 500 == 0: ws.flush_row_data()
+            row = _clean(row)
+            for col_number, val in enumerate(row):
+#                ws.col(col_number).width = 256 * (len(val) + 1)
+                gangnam_style = dt_cell_style if isinstance(val, datetime) else default_cell_style;
+                ws.write(row_number, col_number, val, style=gangnam_style)
+    return ws
+
+
 
 def get_organization_from_manager(manager):
     from datawinners.accountmanagement.models import Organization, OrganizationSetting

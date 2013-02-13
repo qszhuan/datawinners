@@ -5,8 +5,8 @@ from project.data_sender import DataSender
 from project.submission_utils.submission_formatter import SubmissionFormatter
 
 class Analysis(SubmissionData):
-    def __init__(self, form_model, manager, org_id, submission_type, filters):
-        super(Analysis, self).__init__(form_model, manager, org_id, Header, submission_type, filters)
+    def __init__(self, form_model, manager, org_id, filters):
+        super(Analysis, self).__init__(form_model, manager, org_id, Header, None, filters)
         self._init_raw_values()
 
     def get_leading_part(self):
@@ -30,14 +30,11 @@ class Analysis(SubmissionData):
 
         return AnalysisResult(field_values, analysis_statistics, data_sender_list, subject_lists, default_sort_order)
 
-    #change to get_leading_part()
     def _init_excel_values(self):
         leading_part = []
         for submission in self.submissions:
             data_sender_tuple, rp, subject, submission_date = super(Analysis, self)._get_submission_details(submission)
             data_sender = DataSender.from_tuple(data_sender_tuple)
             leading_part.append(
-                filter(lambda x: x, [data_sender.name,data_sender.reporter_id, submission_date, subject, rp]))
+                filter(lambda x: x, [data_sender.name, data_sender.reporter_id, submission_date, subject, rp]))
         return leading_part
-
-

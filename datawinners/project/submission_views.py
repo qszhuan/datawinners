@@ -208,9 +208,8 @@ def _export_submissions_in_xls_for_analysis_page(request):
 
 def _build_submission_analyzer_for_analysis(request, manager, form_model):
     #Analysis page wont hv any type since it has oly success submission data.
-    submission_type = request.GET.get('type',None)
     filters = request.POST
-    return Analysis(form_model,manager,helper.get_org_id_by_user(request.user), submission_type, filters)
+    return Analysis(form_model,manager,helper.get_org_id_by_user(request.user), filters)
 
 @login_required(login_url='/login')
 @session_not_expired
