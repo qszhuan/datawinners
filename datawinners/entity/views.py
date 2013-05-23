@@ -14,6 +14,7 @@ from django.views.decorators.http import require_http_methods
 from django.utils.translation import ugettext as _, activate, get_language
 from datawinners import utils
 from datawinners.project.view_models import ReporterEntity
+from entity.datasender_search import search, create_search_index
 from mangrove.form_model.field import field_to_json
 from mangrove.transport import Channel
 from datawinners.alldata.helper import get_visibility_settings_for
@@ -361,6 +362,22 @@ def create_multiple_web_users(request):
         content = __create_web_users(org_id, post_data, request.LANGUAGE_CODE)
         return HttpResponse(content)
 
+
+@csrf_view_exempt
+@csrf_response_exempt
+@login_required(login_url='/login')
+@session_not_expired
+@is_new_user
+@is_datasender
+@is_not_expired
+def search_datasenders(request):
+    create_search_index(get_database_manager(request.user))
+    return HttpResponse(search(request.POST["q"], request.POST.get("page", 1)))
+#    return HttpResponse(json.dumps([
+#        {'id':'rep1', 'name':'Shweta1', 'location':'Bangalore,Karnataka,India', 'gps':'34,23', 'phone':'343434222', 'projects':'p1, p2', 'email':'a@example.com', 'devices':{'web':True,'sms':True, 'xform':True}},
+#        {'id':'rep10', 'name':'stefan','devices':{'web':False,'sms':True, 'xform':False}},
+#        {'id':'rep11', 'name':'mamy'}]))
+#    #return HttpResponse(json.dumps({'success': True, 'message': "No data sender found"}))
 
 @csrf_view_exempt
 @csrf_response_exempt
