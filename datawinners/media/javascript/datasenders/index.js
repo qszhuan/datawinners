@@ -245,5 +245,47 @@ $(document).ready(function () {
             return DW.all_ds_action_dropdown
         }
     }
+
+    var handle_results = function(data) {
+        var right_mark = '<img alt="Yes" src="/media/images/right_icon.png">'
+        template = "<tr><td><input type='checkbox'></td>"
+        for(i =0; i<10; i++ ) template += "<td></td>";
+        template +="</tr>";
+
+        $("#checkall-datasenders").removeAttr('checked')
+        $('#all_data_senders tr').remove();
+        for(i=0; i<data.length; i++)  $('#all_data_senders').append(template)
+
+        $('#all_data_senders tr').each(function(i, tr){
+           $(tr).find('td input[type=checkbox]').val(data[i].short_code)
+           $(tr.children[1]).text(data[i].name)
+           $(tr.children[2]).text(data[i].short_code)
+           $(tr.children[3]).text(data[i].location)
+           $(tr.children[4]).text(data[i].gps)
+           $(tr.children[5]).text(data[i].mobile_number)
+           $(tr.children[6]).text(data[i].projects)
+           $(tr.children[7]).text(data[i].email)
+
+           $(tr.children[8]).html(right_mark)
+           $(tr.children[9]).html(data[i].devices_web?right_mark:'--')
+           $(tr.children[10]).html(data[i].devices_web?right_mark:'--')
+        });
+
+        $('#all_data_senders input[type=checkbox]').click(function() {
+            var action_dropdown = get_action_dropdown_object();
+            if ($('#all_data_senders input:checkbox[checked]').length==0) {
+                action_dropdown.deactivate_action();
+            } else {
+                action_dropdown.init_action_dropdown();
+            }
+
+            $("#checkall-datasenders").attr("checked", $('#all_data_senders input:checkbox').length == $('#all_data_senders input:checkbox[checked]').length);
+        })
+
+    }
+
+    $('#search').click(function() {
+        $.post('/entity/datasenders/search', {'q':$('#q').val()}, handle_results, "json")
+    })
 });
 
